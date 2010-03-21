@@ -1,14 +1,14 @@
 require.paths.unshift("./spec/lib", "./lib");
 require("jspec");
 
-var sys = require("sys"), posix = require("posix");
+var sys = require("sys"), fs = require("fs");
 
 quit = process.exit
 print = sys.puts
 
 readFile = function(path) {
   try {
-    return posix.cat(path).wait();
+    return fs.readFileSync(path);
   } catch (e) {
     throw new Error("Could not load file "+path);
   }
@@ -20,13 +20,7 @@ if (process.ARGV[2]) {
   specsFound = true;
   JSpec.exec('spec/spec.' + process.ARGV[2] + '.js');
 } else {
-  var files;
-  posix
-    .readdir('spec/')
-    .addCallback(
-      function(dirFiles) { files = dirFiles; }
-    ).wait();
-  
+  var files = fs.readdirSync('spec/');  
   files.filter(
     function (file) { 
       return file.indexOf('spec.') === 0; 

@@ -1,5 +1,6 @@
 process.mixin(GLOBAL, require('mock-request'));
 access = require('access-logger');
+promise = require('promise');
 
 describe 'jsgiLogger'
   before_each
@@ -34,7 +35,7 @@ describe 'jsgiLogger'
   end
   
   it 'should log the response of a promise-returning jsgi application'
-    testResponse = new process.Promise();
+    testResponse = new promise.Deferred();
     var jsgiLogger = access.jsgiLogger(testApp, logger);
     request = new Request('GET', '/cheese?and=biscuits');
     var response = jsgiLogger(request);
@@ -42,6 +43,7 @@ describe 'jsgiLogger'
     response.should.be testResponse
     
     testResponse.emitSuccess({ status: 200, headers: {}, body: ['Nothing']});
+    process.loop();
     
     var parts = logMessage.match(/^(.*?)\s\-\s(.*?)\s\[(.*?)\]\s\"(.*?)"\s(.*?)\s-/);
     parts[1].should.be 'host'
